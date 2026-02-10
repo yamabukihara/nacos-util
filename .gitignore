@@ -1,0 +1,7 @@
+# Nacos SDK 自动生成的缓存和日志 (你提到过它们在执行目录)
+log/
+cache/
+nacos-sdk.log
+
+# 依赖管理
+vendor/
