@@ -1,0 +1,50 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: golang pure build
+
+on:
+  workflow_dispatch: 
+    inputs:
+      build_tag: 
+        description: '编译版本标签 (例如: v1.0.1)'
+        required: true
+        default: 'latest'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.24.2'
+        cache: true
+
+    - name: Build Static Binary
+      env:
+        CGO_ENABLED: 0
+        GOOS: linux
+        GOARCH: amd64
+      run: go build -ldflags="-s -w -X main.Version=${{ github.event.inputs.build_tag }}" -o nacos_util main.go
+
+    - name: SHA256
+      run: sha256sum nacos_util > sha256.txt
+
+    - name: Display SHA256
+      run: cat sha256.txt
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-${{ github.event.inputs.build_tag }}
+        path:
+          nacos_util
+          sha256.txt
+        retention-days: 3
+        
+
+
